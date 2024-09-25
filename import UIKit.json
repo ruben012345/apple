@@ -1,0 +1,250 @@
+{
+    "appCode": {
+      "imports": [
+        "UIKit",
+        "ReplayKit",
+        "AVFoundation",
+        "Photos"
+      ],
+      "class": "BroadcastViewController",
+      "inheritance": "UIViewController",
+      "properties": {
+        "UI Elements": [
+          "UITextField serverURLTextField",
+          "UITextField fileNameTextField",
+          "UIButton startRecordingButton",
+          "UIButton startBroadcastButton",
+          "UILabel recordingStatusLabel",
+          "UILabel broadcastStatusLabel",
+          "UIButton pauseRecordingButton",
+          "UIActivityIndicatorView activityIndicator"
+        ],
+        "properties": [
+          "RPScreenRecorder recorder = RPScreenRecorder.shared()",
+          "RPBroadcastController? broadcastController",
+          "Bool isRecording = false",
+          "Bool isBroadcasting = false"
+        ]
+      },
+      "lifecycleMethods": [
+        {
+          "methodName": "viewDidLoad",
+          "actions": [
+            "setupUI()",
+            "checkPermissions()",
+            "setupNotificationObservers()"
+          ]
+        }
+      ],
+      "methods": {
+        "setupUI": {
+          "description": "Configura la interfaz de usuario y añade todos los elementos al view.",
+          "actions": [
+            "Set view background color to systemBackground",
+            "Configure serverURLTextField",
+            "Configure fileNameTextField",
+            "Configure startRecordingButton",
+            "Configure startBroadcastButton",
+            "Configure pauseRecordingButton",
+            "Configure recordingStatusLabel",
+            "Configure broadcastStatusLabel",
+            "Configure activityIndicator",
+            "Call setupConstraints"
+          ]
+        },
+        "setupConstraints": {
+          "description": "Establece las restricciones de Auto Layout para los elementos UI.",
+          "constraints": [
+            "serverURLTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)",
+            "serverURLTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)",
+            "serverURLTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)",
+            "serverURLTextField.heightAnchor.constraint(equalToConstant: 40)",
+            "fileNameTextField.topAnchor.constraint(equalTo: serverURLTextField.bottomAnchor, constant: 20)",
+            "fileNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)",
+            "fileNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)",
+            "fileNameTextField.heightAnchor.constraint(equalToConstant: 40)",
+            "startRecordingButton.topAnchor.constraint(equalTo: fileNameTextField.bottomAnchor, constant: 40)",
+            "startRecordingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)",
+            "startRecordingButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8)",
+            "startRecordingButton.heightAnchor.constraint(equalToConstant: 50)",
+            "pauseRecordingButton.topAnchor.constraint(equalTo: startRecordingButton.bottomAnchor, constant: 20)",
+            "pauseRecordingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)",
+            "pauseRecordingButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8)",
+            "pauseRecordingButton.heightAnchor.constraint(equalToConstant: 50)",
+            "startBroadcastButton.topAnchor.constraint(equalTo: pauseRecordingButton.bottomAnchor, constant: 20)",
+            "startBroadcastButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)",
+            "startBroadcastButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8)",
+            "startBroadcastButton.heightAnchor.constraint(equalToConstant: 50)",
+            "recordingStatusLabel.topAnchor.constraint(equalTo: startBroadcastButton.bottomAnchor, constant: 20)",
+            "recordingStatusLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)",
+            "broadcastStatusLabel.topAnchor.constraint(equalTo: recordingStatusLabel.bottomAnchor, constant: 10)",
+            "broadcastStatusLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)"
+          ]
+        },
+        "checkPermissions": {
+          "description": "Solicita los permisos necesarios para grabar y acceder a la biblioteca de fotos.",
+          "actions": [
+            "AVCaptureDevice.requestAccess(for: .audio)",
+            "PHPhotoLibrary.requestAuthorization"
+          ]
+        },
+        "toggleRecording": {
+          "description": "Activa o desactiva la grabación según el estado actual.",
+          "actions": [
+            "if isRecording -> stopRecording()",
+            "else -> startRecording()"
+          ]
+        },
+        "startRecording": {
+          "description": "Inicia la grabación de pantalla.",
+          "actions": [
+            "Check recorder.isAvailable",
+            "Set recorder.isMicrophoneEnabled to true",
+            "Show activityIndicator",
+            "Call recorder.startRecording()",
+            "Handle errors and update UI"
+          ]
+        },
+        "stopRecording": {
+          "description": "Detiene la grabación de pantalla.",
+          "actions": [
+            "Show activityIndicator",
+            "Call recorder.stopRecording()",
+            "Handle errors and present preview if available",
+            "Update UI"
+          ]
+        },
+        "toggleBroadcast": {
+          "description": "Activa o desactiva la transmisión en vivo según el estado actual.",
+          "actions": [
+            "if isBroadcasting -> stopBroadcast()",
+            "else -> startBroadcast()"
+          ]
+        },
+        "startBroadcast": {
+          "description": "Inicia la transmisión en vivo.",
+          "actions": [
+            "Check if rtmpURL is valid",
+            "Check network connectivity",
+            "Show activityIndicator",
+            "Load RPBroadcastActivityViewController",
+            "Handle errors and update UI"
+          ]
+        },
+        "stopBroadcast": {
+          "description": "Detiene la transmisión en vivo.",
+          "actions": [
+            "Show activityIndicator",
+            "Call broadcastController.finishBroadcast()",
+            "Handle errors and update UI"
+          ]
+        },
+        "updateRecordingUI": {
+          "description": "Actualiza la interfaz de usuario para reflejar el estado de la grabación.",
+          "actions": [
+            "Update startRecordingButton title",
+            "Update recordingStatusLabel text and color"
+          ]
+        },
+        "updateBroadcastUI": {
+          "description": "Actualiza la interfaz de usuario para reflejar el estado de la transmisión.",
+          "actions": [
+            "Update startBroadcastButton title",
+            "Update broadcastStatusLabel text and color"
+          ]
+        },
+        "updateButtonStates": {
+          "description": "Habilita o deshabilita los botones según el estado de grabación y transmisión.",
+          "actions": [
+            "Set startRecordingButton.isEnabled",
+            "Set startBroadcastButton.isEnabled"
+          ]
+        },
+        "showActivityIndicator": {
+          "description": "Muestra el indicador de actividad.",
+          "actions": [
+            "Call activityIndicator.startAnimating()"
+          ]
+        },
+        "hideActivityIndicator": {
+          "description": "Oculta el indicador de actividad.",
+          "actions": [
+            "Call activityIndicator.stopAnimating()"
+          ]
+        },
+        "showAlert": {
+          "description": "Muestra un mensaje de alerta al usuario.",
+          "parameters": ["String message"],
+          "actions": [
+            "Create UIAlertController",
+            "Present alert"
+          ]
+        },
+        "isValidRTMPURL": {
+          "description": "Verifica si la URL proporcionada es válida para RTMP.",
+          "parameters": ["String urlString"],
+          "returns": "Bool",
+          "actions": [
+            "Create NSPredicate with RTMP regex",
+            "Evaluate urlString with predicate"
+          ]
+        },
+        "isConnectedToNetwork": {
+          "description": "Verifica si el dispositivo está conectado a Internet.",
+          "returns": "Bool",
+          "actions": [
+            "Check SCNetworkReachabilityFlags"
+          ]
+        },
+        "setupNotificationObservers": {
+          "description": "Configura observadores de notificaciones para gestionar interrupciones.",
+          "actions": [
+            "Add observer for AVAudioSession.interruptionNotification"
+          ]
+        },
+        "handleInterruption": {
+          "description": "Maneja interrupciones como llamadas telefónicas.",
+          "parameters": ["Notification notification"],
+          "actions": [
+            "Check AVAudioSessionInterruptionType",
+            "If recording or broadcasting, stop them"
+          ]
+        }
+      },
+      "extensions": [
+        {
+          "className": "BroadcastViewController",
+          "protocols": ["RPBroadcastActivityViewControllerDelegate"],
+          "methods": {
+            "broadcastActivityViewController": {
+              "description": "Maneja el resultado de la configuración de la transmisión.",
+              "parameters": [
+                "RPBroadcastActivityViewController broadcastActivityViewController",
+                "RPBroadcastController? broadcastController",
+                "Error? error"
+              ],
+              "actions": [
+                "Dismiss broadcastActivityViewController",
+                "Handle errors"
+              ]
+            }
+          }
+        },
+        {
+          "className": "BroadcastViewController",
+          "protocols": ["RPPreviewViewControllerDelegate"],
+          "methods": {
+            "previewControllerDidFinish": {
+              "description": "Maneja el final de la vista previa del video grabado.",
+              "parameters": ["RPPreviewViewController previewController"],
+              "actions": [
+                "Dismiss previewController",
+                "Save recording with custom file name if provided"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+  
